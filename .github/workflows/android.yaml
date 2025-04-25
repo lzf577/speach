@@ -18,15 +18,20 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install build dependencies
+    - name: Install system dependencies
       run: |
         sudo apt update
         sudo apt install -y build-essential git zip unzip openjdk-17-jdk python3-pip libffi-dev libssl-dev libsqlite3-dev zlib1g-dev
-        pip install --upgrade pip setuptools Cython virtualenv
 
-    - name: Install Buildozer
+    - name: Install Android SDK & AIDL
       run: |
-        pip install buildozer
+        sudo apt install -y android-sdk
+        echo "export ANDROIDSDK=/usr/lib/android-sdk" >> $GITHUB_ENV
+        echo "export PATH=$PATH:/usr/lib/android-sdk/build-tools/34.0.0" >> $GITHUB_ENV
+
+    - name: Install Python dependencies
+      run: |
+        pip install --upgrade pip setuptools Cython virtualenv buildozer
 
     - name: Build APK
       run: |

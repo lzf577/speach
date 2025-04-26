@@ -27,8 +27,9 @@ jobs:
       - name: Build EXE with PyInstaller
         run: |
           pyinstaller --onefile --windowed speakers.py
-          mkdir artifacts
+          if (-not (Test-Path "artifacts")) { mkdir artifacts }
           move dist\speakers.exe artifacts\speakers.exe
+        shell: pwsh
 
       - name: Commit and push EXE
         run: |

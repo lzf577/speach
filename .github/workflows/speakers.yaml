@@ -29,4 +29,4 @@ jobs:
       # Step 4: Build EXE with PyInstaller
       - name: Build EXE with PyInstaller
         run: |
-          pyinstaller --onefile --windowed tts_script.py  # 打包为单个 EXE 文件
+          pyinstaller --onefile --windowed speakers.py  # 更新为正确的文件名

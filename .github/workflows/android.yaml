@@ -34,19 +34,33 @@ jobs:
           pip install --upgrade pip
           pip install buildozer cython virtualenv
 
+      - name: Cache Android SDK
+        uses: actions/cache@v3
+        with:
+          path: ~/.android
+          key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/*.java') }}
+          restore-keys: |
+            ${{ runner.os }}-android-sdk-
+
       - name: Install Android SDK
         run: |
-          # 安装 Android SDK
-          mkdir -p $HOME/Android/Sdk
-          curl -sL https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -o android-tools.zip
-          unzip android-tools.zip -d $HOME/Android/Sdk
-          rm android-tools.zip
+          # 安装 Android SDK（只有在缓存中没有时才会执行）
+          if [ ! -d "$HOME/Android/Sdk" ]; then
+            mkdir -p $HOME/Android/Sdk
+            curl -sL https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -o android-tools.zip
+            unzip android-tools.zip -d $HOME/Android/Sdk
+            rm android-tools.zip
 
-          # 配置环境变量
-          echo "export ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
-          echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
-          echo "export PATH=$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
-          
+            # 配置环境变量
+            echo "export ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
+            echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
+            echo "export PATH=$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
+          fi
+
+          # 确保 sdkmanager 可用
+          export PATH=$HOME/Android/Sdk/cmdline-tools/latest/bin:$PATH
+          echo $PATH  # 输出 PATH 检查
+
           # 安装 AIDL 和其它 SDK 工具
           sdkmanager --update
           sdkmanager "platforms;android-30" "build-tools;30.0.3" "ndk;21.4.7075529" "platform-tools"

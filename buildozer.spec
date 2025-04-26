@@ -1,33 +1,29 @@
 [app]
-title = TTSApp
-package.name = ttsapp
-package.domain = org.kivy
+title = TTSBatchApp
+package.name = ttsbatch
+package.domain = org.chattts
 source.dir = .
-source.include_exts = py,kv,png,jpg,ttf,txt,json
-version = 1.0
-requirements = python3,kivy,kivymd,requests,certifi
+source.include_exts = py,png,jpg,kv,atlas,wav
+version = 0.1
+requirements = python3,kivy,requests
 orientation = portrait
 fullscreen = 0
-android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
+osx.python_version = 3
+osx.kivy_version = 2.2.1
 
-# 运行入口
-entrypoint = main.py
-
-# 启动图标（可选）
-# icon.filename = icons/app_icon.png
-
-# 编译时避免压缩的文件（音频或模型）
-android.allow_backup = True
-android.archs = armeabi-v7a, arm64-v8a
-
-# Android API 最小版本
-android.minapi = 21
-android.target = 33
-
-# 忽略 log 级别限制（调试用）
-log_level = 2
-
-# 编译指令（不改也行）
 [buildozer]
 log_level = 2
 warn_on_root = 1
+
+[android]
+android.api = 31
+android.ndk = 23b
+android.ndk_path = $ANDROID_NDK
+android.sdk_path = $ANDROID_SDK_ROOT
+android.ndk_api = 21
+android.arch = armeabi-v7a
+minapi = 21
+presplash.filename = %(source.dir)s/data/icon.png
+icon.filename = %(source.dir)s/data/icon.png
+# 关闭权限限制调试
+android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE

@@ -92,7 +92,7 @@ class TextToSpeechApp:
 
         self.text_entry = tk.Text(root, height=12, font=("Arial", 14))
         self.text_entry.pack(pady=10, fill=tk.BOTH, expand=True)
-        self.text_entry.insert(tk.END, "第一段文本\n空行\n第二段文本\n空行\n第三段文本")
+        self.text_entry.insert(tk.END, "今天《新闻联播》主要内容有\n1-习近平在中共中央政治局第二十次集体学习时强调，坚持自立自强，突出应用导向，推动人工智能健康有序发展。\n2-央视快评，推动我国人工智能朝着有益、安全、公平方向健康有序发展。\n3-【锲而不舍落实中央八项规定精神】各地扎实推动学习教育走深走实。\n4-【在希望的田野上】全国春播进展顺利，夏油丰收在望。")
 
         # 发音人选择
         self.speaker_label = tk.Label(root, text="选择发音人：", font=("Arial", 12))

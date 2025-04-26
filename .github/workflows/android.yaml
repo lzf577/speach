@@ -1,45 +1,48 @@
-name: Build Kivy APK
+name: Build Android APK
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential git zip unzip openjdk-17-jdk python3-pip libncurses5 libstdc++6 \
-              libffi-dev libssl-dev libsqlite3-dev zlib1g-dev wget libjpeg-dev libfreetype6-dev \
-              libgl1-mesa-dev libgles2-mesa-dev
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip libgl1-mesa-dev
 
       - name: Install buildozer
         run: |
-          pip install --upgrade pip
           pip install buildozer cython
+          buildozer init  # optional, will not override if file exists
 
-      - name: Create default.spec if not exists
-        run: |
-          if [ ! -f buildozer.spec ]; then
-            buildozer init
-          fi
+      - name: Cache .buildozer
+        uses: actions/cache@v4
+        with:
+          path: .buildozer
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('**/*.py') }}
+          restore-keys: |
+            ${{ runner.os }}-buildozer-
 
-      - name: Build APK
+      - name: Download Android SDK/NDK
         run: |
+          buildozer android clean
           buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: kivy-app
+          name: app-release.apk
           path: bin/*.apk

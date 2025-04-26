@@ -1,48 +1,51 @@
-name: Build Android APK
+name: Build Kivy Android APK
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout source
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
-      - name: Install system dependencies
+      - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip libgl1-mesa-dev
+          sudo apt install -y \
+            build-essential \
+            git \
+            python3-pip \
+            openjdk-17-jdk \
+            unzip \
+            zip \
+            libncurses5
 
-      - name: Install buildozer
+          pip install --upgrade pip
+          pip install buildozer cython virtualenv
+
+      - name: Create virtualenv
         run: |
-          pip install buildozer cython
-          buildozer init  # optional, will not override if file exists
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt || true  # 如果你没有 requirements.txt 可以删掉这行
 
-      - name: Cache .buildozer
-        uses: actions/cache@v4
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('**/*.py') }}
-          restore-keys: |
-            ${{ runner.os }}-buildozer-
-
-      - name: Download Android SDK/NDK
+      - name: Build APK
         run: |
-          buildozer android clean
+          source venv/bin/activate
           buildozer android debug
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: app-release.apk
+          name: kivy-app-debug-apk
           path: bin/*.apk

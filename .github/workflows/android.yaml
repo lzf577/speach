@@ -37,7 +37,7 @@ jobs:
       - name: Cache Android SDK
         uses: actions/cache@v3
         with:
-          path: ~/.android
+          path: $HOME/Android/Sdk
           key: ${{ runner.os }}-android-sdk-${{ hashFiles('**/*.java') }}
           restore-keys: |
             ${{ runner.os }}-android-sdk-
@@ -45,7 +45,7 @@ jobs:
       - name: Install Android SDK
         run: |
           # 安装 Android SDK（只有在缓存中没有时才会执行）
-          if [ ! -d "$HOME/Android/Sdk" ]; then
+          if [ ! -d "$HOME/Android/Sdk/cmdline-tools" ]; then
             mkdir -p $HOME/Android/Sdk
             curl -sL https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -o android-tools.zip
             unzip android-tools.zip -d $HOME/Android/Sdk

@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '11'
-          distribution: 'adoptopenjdk'
+          distribution: 'temurin'  # 使用 temurin 替代 adoptopenjdk
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v2

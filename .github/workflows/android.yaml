@@ -1,73 +1,35 @@
-name: Build Kivy Android APK
+# 清除已有的 SDK 安装并重新安装
+- name: 清除已有的 SDK 安装并重新安装
+  run: |
+    rm -rf $HOME/Android/Sdk
+    mkdir -p $HOME/Android/Sdk
+  
+    # 下载并解压 SDK
+    curl -sL https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -o android-tools.zip
+    unzip android-tools.zip -d $HOME/Android/Sdk
+    rm android-tools.zip
+  
+    # 配置环境变量
+    echo "export ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
+    echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
+    echo "export PATH=$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
+  
+    # 输出 PATH 和 ANDROID_HOME，调试用
+    echo "Current PATH: $PATH"
+    echo "ANDROID_HOME: $ANDROID_HOME"
 
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+    # 确保 sdkmanager 可用
+    export PATH=$HOME/Android/Sdk/cmdline-tools/latest/bin:$PATH
+    which sdkmanager  # 确认 sdkmanager 是否存在
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y \
-            build-essential \
-            git \
-            python3-pip \
-            openjdk-17-jdk \
-            unzip \
-            zip \
-            libncurses6 \
-            curl  # curl 用于下载 SDK
-
-          pip install --upgrade pip
-          pip install buildozer cython virtualenv
-
-      - name: Install Android SDK
-        run: |
-          # 清除已有的 SDK 安装并重新安装
-          rm -rf $HOME/Android/Sdk
-          mkdir -p $HOME/Android/Sdk
-
-          # 下载并解压 SDK
-          curl -sL https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -o android-tools.zip
-          unzip android-tools.zip -d $HOME/Android/Sdk
-          rm android-tools.zip
-
-          # 配置环境变量
-          echo "export ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
-          echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
-          echo "export PATH=$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
-
-          # 输出 PATH，调试用
-          echo "Current PATH: $PATH"
-
-          # 确保 sdkmanager 可用
-          export PATH=$HOME/Android/Sdk/cmdline-tools/latest/bin:$PATH
-          which sdkmanager  # 确认 sdkmanager 是否存在
-
-          # 安装 AIDL 和其它 SDK 工具，加入 -v 参数查看详细输出
-          sdkmanager --update -v
-          sdkmanager "platforms;android-30" "build-tools;30.0.3" "ndk;21.4.7075529" "platform-tools"
-
-      - name: Create virtualenv
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install -r requirements.txt || true  # 如果你没有 requirements.txt 可以删掉这行
-
-      - name: Build APK
-        run: |
-          source venv/bin/activate
-          buildozer android debug
+    # 更新 SDK 和工具
+    sdkmanager --update -v
+    sdkmanager "platforms;android-30" "build-tools;30.0.3" "ndk;21.4.7075529" "platform-tools"
+  shell: /usr/bin/bash -e {0}
+  env:
+    pythonLocation: /opt/hostedtoolcache/Python/3.10.17/x64
+    PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.17/x64/lib/pkgconfig
+    Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.17/x64
+    Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.17/x64
+    Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.17/x64
+    LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.17/x64/lib

@@ -1,61 +1,32 @@
-name: Build Android APK
+- name: Set up Android SDK
+  run: |
+    echo "Setting up Android SDK..."
+    
+    # 清除已有的 SDK 安装并重新安装
+    rm -rf $HOME/Android/Sdk
+    mkdir -p $HOME/Android/Sdk
 
-on:
-  push:
-    branches:
-      - main
+    # 下载并解压 SDK
+    curl -sL https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -o android-tools.zip
+    unzip android-tools.zip -d $HOME/Android/Sdk
+    rm android-tools.zip
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+    # 配置环境变量
+    echo "export ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
+    echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
+    echo "export PATH=$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    # 输出当前 PATH 和 SDK 目录结构，调试用
+    echo "Current PATH: $PATH"
+    ls -la $ANDROID_HOME  # 输出 SDK 目录结构
 
-    - name: Set up JDK
-      uses: actions/setup-java@v2
-      with:
-        java-version: '11'
-        java-package: jdk
-        architecture: x64
-        check-latest: false
-        distribution: 'temurin'  # 使用 Temurin 代替 adoptopenjdk
-        server-id: github
-        server-username: GITHUB_ACTOR
-        server-password: GITHUB_TOKEN
-        overwrite-settings: true
-        job-status: success
+    # 确保 sdkmanager 可用
+    export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+    which sdkmanager  # 确认 sdkmanager 是否存在
 
-    - name: Set up Android SDK
-      run: |
-        # 清除已有的 SDK 安装并重新安装
-        rm -rf $HOME/Android/Sdk
-        mkdir -p $HOME/Android/Sdk
+    # 给 sdkmanager 赋予执行权限（如果需要）
+    chmod +x $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager
 
-        # 下载并解压 SDK
-        curl -sL https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -o android-tools.zip
-        unzip android-tools.zip -d $HOME/Android/Sdk
-        rm android-tools.zip
-
-        # 配置环境变量
-        echo "export ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
-        echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
-        echo "export PATH=$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
-
-        # 输出 PATH，调试用
-        echo "Current PATH: $PATH"
-
-        # 确保 sdkmanager 可用
-        export PATH=$HOME/Android/Sdk/cmdline-tools/latest/bin:$PATH
-        which sdkmanager  # 确认 sdkmanager 是否存在
-
-        # 安装 AIDL 和其它 SDK 工具，加入 -v 参数查看详细输出
-        sdkmanager --update -v
-        sdkmanager "platforms;android-30" "build-tools;30.0.3" "ndk;21.4.7075529" "platform-tools"
-
-    - name: Build APK
-      run: |
-        # 你可以在这里执行你的 buildozer 或其它构建命令
-        # 例如，运行 buildozer 来构建 APK
-        # buildozer android debug
+    # 安装 SDK 组件，手动指定组件版本
+    sdkmanager --update -v
+    sdkmanager "platforms;android-30" "build-tools;30.0.3" "ndk;21.4.7075529" "platform-tools"

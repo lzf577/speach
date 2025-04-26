@@ -20,7 +20,7 @@ jobs:
         java-package: jdk
         architecture: x64
         check-latest: false
-        distribution: 'adoptopenjdk'  # 添加了 distribution 参数
+        distribution: 'temurin'  # 使用 Temurin 代替 adoptopenjdk
         server-id: github
         server-username: GITHUB_ACTOR
         server-password: GITHUB_TOKEN

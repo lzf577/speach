@@ -43,9 +43,3 @@ jobs:
         run: |
           source venv/bin/activate
           buildozer android debug
-
-      - name: Upload APK as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: kivy-app-debug-apk
-          path: bin/*.apk

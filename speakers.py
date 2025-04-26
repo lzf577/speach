@@ -7,8 +7,8 @@ import time
 import os
 
 # API 地址
-api_url = "http://localhost:7870/v2/tts"
-speakers_api_url = "http://localhost:7870/v1/speakers/list"
+api_url = "http://192.168.41.111:7870/v2/tts"
+speakers_api_url = "http://192.168.41.111:7870/v1/speakers/list"
 
 # 获取 speakers 列表
 def get_speakers():

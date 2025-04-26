@@ -1,4 +1,4 @@
-name: Build Android java APK
+name: Build Android APK
 
 on:
   push:
@@ -25,11 +25,8 @@ jobs:
           target: android-30
           build-tools: 30.0.3
 
-      - name: Build with Gradle
+      - name: Build APK with Gradle
         run: ./gradlew assembleRelease  # 如果你使用的是 Gradle 构建工具
 
-      - name: Upload APK as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: android-apk
-          path: app/build/outputs/apk/release/app-release.apk  # 适当调整路径
+      - name: Upload APK to a custom location (optional)
+        run: mv app/build/outputs/apk/release/app-release.apk $GITHUB_WORKSPACE/app-release.apk

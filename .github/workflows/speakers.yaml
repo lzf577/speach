@@ -26,13 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller requests
 
-      # Step 4: Build the EXE with PyInstaller
+      # Step 4: Build EXE with PyInstaller
       - name: Build EXE with PyInstaller
         run: |
-          pyinstaller --onefile --windowed speakers.py  # 打包为单个 EXE 文件
-
-      # Step 5: Upload the EXE as an artifact
-      - name: Upload EXE as artifact
-        with:
-          name: tts-app
-          path: dist/tts_script.exe
+          pyinstaller --onefile --windowed tts_script.py  # 打包为单个 EXE 文件

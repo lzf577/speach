@@ -29,4 +29,12 @@ jobs:
       # Step 4: Build EXE with PyInstaller
       - name: Build EXE with PyInstaller
         run: |
-          pyinstaller --onefile --windowed speakers.py  # 更新为正确的文件名
+          pyinstaller --onefile --windowed speakers.py  # 打包为单个 EXE 文件
+
+      # Step 5: Create a release and upload EXE
+      - name: Create Release and Upload EXE
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/speakers.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

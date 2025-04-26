@@ -1,35 +1,54 @@
-# 清除已有的 SDK 安装并重新安装
-- name: 清除已有的 SDK 安装并重新安装
-  run: |
-    rm -rf $HOME/Android/Sdk
-    mkdir -p $HOME/Android/Sdk
-  
-    # 下载并解压 SDK
-    curl -sL https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -o android-tools.zip
-    unzip android-tools.zip -d $HOME/Android/Sdk
-    rm android-tools.zip
-  
-    # 配置环境变量
-    echo "export ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
-    echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
-    echo "export PATH=$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
-  
-    # 输出 PATH 和 ANDROID_HOME，调试用
-    echo "Current PATH: $PATH"
-    echo "ANDROID_HOME: $ANDROID_HOME"
+name: Build Android APK
 
-    # 确保 sdkmanager 可用
-    export PATH=$HOME/Android/Sdk/cmdline-tools/latest/bin:$PATH
-    which sdkmanager  # 确认 sdkmanager 是否存在
+on:
+  push:
+    branches:
+      - main
 
-    # 更新 SDK 和工具
-    sdkmanager --update -v
-    sdkmanager "platforms;android-30" "build-tools;30.0.3" "ndk;21.4.7075529" "platform-tools"
-  shell: /usr/bin/bash -e {0}
-  env:
-    pythonLocation: /opt/hostedtoolcache/Python/3.10.17/x64
-    PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.17/x64/lib/pkgconfig
-    Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.17/x64
-    Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.17/x64
-    Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.17/x64
-    LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.17/x64/lib
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+
+    - name: 清除已有的 SDK 安装并重新安装
+      run: |
+        rm -rf $HOME/Android/Sdk
+        mkdir -p $HOME/Android/Sdk
+      
+        # 下载并解压 SDK
+        curl -sL https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -o android-tools.zip
+        unzip android-tools.zip -d $HOME/Android/Sdk
+        rm android-tools.zip
+      
+        # 配置环境变量
+        echo "export ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
+        echo "export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH" >> $GITHUB_ENV
+        echo "export PATH=$ANDROID_HOME/platform-tools:$PATH" >> $GITHUB_ENV
+      
+        # 输出 PATH 和 ANDROID_HOME，调试用
+        echo "Current PATH: $PATH"
+        echo "ANDROID_HOME: $ANDROID_HOME"
+
+        # 确保 sdkmanager 可用
+        export PATH=$HOME/Android/Sdk/cmdline-tools/latest/bin:$PATH
+        which sdkmanager  # 确认 sdkmanager 是否存在
+
+        # 更新 SDK 和工具
+        sdkmanager --update -v
+        sdkmanager "platforms;android-30" "build-tools;30.0.3" "ndk;21.4.7075529" "platform-tools"
+      shell: /usr/bin/bash -e {0}
+      env:
+        pythonLocation: /opt/hostedtoolcache/Python/3.10.17/x64
+        PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.10.17/x64/lib/pkgconfig
+        Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.17/x64
+        Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.17/x64
+        Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.10.17/x64
+        LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.10.17/x64/lib

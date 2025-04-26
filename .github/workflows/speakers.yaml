@@ -33,7 +33,6 @@ jobs:
 
       # Step 5: Upload the EXE as an artifact
       - name: Upload EXE as artifact
-        uses: actions/upload-artifact@v3
         with:
           name: tts-app
           path: dist/tts_script.exe

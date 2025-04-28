@@ -5,6 +5,7 @@ import requests
 import json
 import time
 import os
+import subprocess
 
 # API 地址
 api_url = "http://192.168.41.111:7870/v2/tts"
@@ -27,26 +28,43 @@ def get_speakers():
         print("获取 speakers 异常:", e)
     return []
 
+# 使用 ffmpeg 转换 wav 文件为 mp3 格式
+def convert_wav_to_mp3(wav_file, mp3_file):
+    try:
+        # 使用 ffmpeg 将 wav 文件转换为 mp3 文件
+        subprocess.run(['ffmpeg', '-i', wav_file, mp3_file], check=True)
+        os.remove(wav_file)  # 删除临时 wav 文件
+        return mp3_file
+    except Exception as e:
+        print(f"转换失败: {e}")
+        return None
+
 # 发送一个段落的 TTS 请求
 def send_paragraph_request(text, speaker_name, save_dir, index):
     params = {
         "text": text,
         "spk": {"from_spk_name": speaker_name},
         "tts": {
-            "sample_rate": 44100,  # 提高采样率到44100 Hz
-            "output_format": "wav",  # 保持wav格式，以避免压缩损失
-            "bitrate": "192k"  # 如果有bitrate选项，增加比特率以提高音质
+            "sample_rate": 22050,  # 改为22050 Hz
+            "output_format": "wav",  # 保持 wav 格式
+            "bitrate": "128k"  # 如果有bitrate选项，增加比特率
         }
     }
     try:
         response = requests.post(api_url, json=params)
         if response.status_code == 200:
             timestamp = int(time.time())
-            filename = f"output_{timestamp}_{index+1}.wav"
-            output_path = os.path.join(save_dir, filename)
+            wav_filename = f"output_{timestamp}_{index+1}.wav"  # 文件名后缀改为 wav
+            output_path = os.path.join(save_dir, wav_filename)
             with open(output_path, "wb") as f:
                 f.write(response.content)
-            return filename
+
+            # 使用 ffmpeg 转换为 mp3 格式
+            mp3_filename = wav_filename.replace(".wav", ".mp3")
+            mp3_file_path = os.path.join(save_dir, mp3_filename)
+            mp3_file = convert_wav_to_mp3(output_path, mp3_file_path)
+
+            return mp3_file if mp3_file else None
         else:
             print("请求失败:", response.status_code, response.text)
             return None
@@ -92,7 +110,7 @@ class TextToSpeechApp:
 
         self.text_entry = tk.Text(root, height=12, font=("Arial", 14))
         self.text_entry.pack(pady=10, fill=tk.BOTH, expand=True)
-        self.text_entry.insert(tk.END, "今天《新闻联播》主要内容有\n1-习近平在中共中央政治局第二十次集体学习时强调，坚持自立自强，突出应用导向，推动人工智能健康有序发展。\n2-央视快评，推动我国人工智能朝着有益、安全、公平方向健康有序发展。\n3-【锲而不舍落实中央八项规定精神】各地扎实推动学习教育走深走实。\n4-【在希望的田野上】全国春播进展顺利，夏油丰收在望。")
+        self.text_entry.insert(tk.END, "")
 
         # 发音人选择
         self.speaker_label = tk.Label(root, text="选择发音人：", font=("Arial", 12))
